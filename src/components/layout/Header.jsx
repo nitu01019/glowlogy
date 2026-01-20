@@ -1,14 +1,50 @@
 /**
  * Header Component
  * Shows user profile when logged in
+ * With swipe gesture support for mobile sidebar
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Phone, User, ChevronRight, LogOut, Calendar } from 'lucide-react';
 import { Button } from '../ui';
 import { useAuth } from '../../context/AuthContext';
+
+// Custom hook for swipe detection
+const useSwipe = (onSwipeLeft, onSwipeRight, isMenuOpen) => {
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    const handleTouchStart = (e) => {
+      touchStartX = e.touches[0].clientX;
+    };
+    
+    const handleTouchEnd = (e) => {
+      touchEndX = e.changedTouches[0].clientX;
+      const swipeDistance = touchEndX - touchStartX;
+      const startedFromLeftEdge = touchStartX < 40;
+      
+      // Swipe right from left edge to open menu
+      if (swipeDistance > 100 && startedFromLeftEdge && !isMenuOpen) {
+        onSwipeRight();
+      }
+      // Swipe left anywhere to close menu (when open)
+      else if (swipeDistance < -100 && isMenuOpen) {
+        onSwipeLeft();
+      }
+    };
+    
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [onSwipeLeft, onSwipeRight, isMenuOpen]);
+};
 
 const NAV_LINKS = [
   { path: '/', label: 'Home' },
@@ -24,6 +60,13 @@ export const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
   const { user, userData, isAuthenticated, logout } = useAuth();
+
+  // Swipe handlers
+  const openMenu = useCallback(() => setIsMenuOpen(true), []);
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+  
+  // Enable swipe gestures for sidebar
+  useSwipe(closeMenu, openMenu, isMenuOpen);
 
   useEffect(() => {
     setIsMenuOpen(false);
