@@ -109,16 +109,22 @@ export const FloatingButtons = () => {
   }, [animationPlayed]);
 
   // Auto show callback modal after 5 seconds - ONLY ONCE per session
+  // After shown once (submitted or cancelled), never show again
   useEffect(() => {
     if (!hasShownModal && phase === 4) {
       const modalTimer = setTimeout(() => {
         setShowCallbackModal(true);
-        setHasShownModal(true);
-        sessionStorage.setItem('glowlogy_modal_shown', 'true');
       }, 5000);
       return () => clearTimeout(modalTimer);
     }
   }, [hasShownModal, phase]);
+  
+  // Mark modal as shown when it closes (submit or cancel)
+  const closeModal = () => {
+    setShowCallbackModal(false);
+    setHasShownModal(true);
+    sessionStorage.setItem('glowlogy_modal_shown', 'true');
+  };
 
   // Handle callback submission to Firebase
   const handleCallbackSubmit = async (e) => {
@@ -136,7 +142,7 @@ export const FloatingButtons = () => {
       setSubmitStatus('success');
       setCallbackForm({ name: '', phone: '' });
       setTimeout(() => {
-        setShowCallbackModal(false);
+        closeModal();
         setSubmitStatus('');
       }, 2000);
     } catch (error) {
@@ -282,7 +288,7 @@ export const FloatingButtons = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowCallbackModal(false)}
+              onClick={closeModal}
             />
             
             {/* Modal - Fixed center positioning */}
@@ -308,7 +314,7 @@ export const FloatingButtons = () => {
                       <p className="text-white/80 text-xs sm:text-sm mt-1">We'll call you back within 5 minutes!</p>
                     </div>
                     <button 
-                      onClick={() => setShowCallbackModal(false)}
+                      onClick={closeModal}
                       className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
                     >
                       <X className="w-5 h-5" />
