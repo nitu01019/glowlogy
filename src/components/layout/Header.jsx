@@ -1,10 +1,9 @@
 /**
  * Header Component
  * Shows user profile when logged in
- * With swipe gesture support for mobile sidebar
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Phone, User, ChevronRight, LogOut, Calendar } from 'lucide-react';
@@ -25,11 +24,6 @@ export const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
   const { user, userData, isAuthenticated, logout } = useAuth();
-  
-  // Swipe gesture support
-  const sidebarRef = useRef(null);
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -40,55 +34,6 @@ export const Header = () => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [isMenuOpen]);
-
-  // Handle swipe to open sidebar (from left edge of screen)
-  useEffect(() => {
-    const handleTouchStart = (e) => {
-      touchStartX.current = e.touches[0].clientX;
-    };
-
-    const handleTouchMove = (e) => {
-      touchEndX.current = e.touches[0].clientX;
-    };
-
-    const handleTouchEnd = () => {
-      const swipeDistance = touchEndX.current - touchStartX.current;
-      const startedFromEdge = touchStartX.current < 30;
-      
-      // Swipe right from left edge to open
-      if (swipeDistance > 80 && startedFromEdge && !isMenuOpen) {
-        setIsMenuOpen(true);
-      }
-    };
-
-    document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchmove', handleTouchMove);
-    document.addEventListener('touchend', handleTouchEnd);
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [isMenuOpen]);
-
-  // Handle swipe to close sidebar
-  const handleSidebarTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleSidebarTouchMove = (e) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const handleSidebarTouchEnd = () => {
-    const swipeDistance = touchStartX.current - touchEndX.current;
-    
-    // Swipe left to close (swipe distance > 80px)
-    if (swipeDistance > 80) {
-      setIsMenuOpen(false);
-    }
-  };
 
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
@@ -327,14 +272,10 @@ export const Header = () => {
             />
             
             <motion.div
-              ref={sidebarRef}
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.25 }}
-              onTouchStart={handleSidebarTouchStart}
-              onTouchMove={handleSidebarTouchMove}
-              onTouchEnd={handleSidebarTouchEnd}
               className="fixed top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl lg:hidden z-50 overflow-y-auto rounded-r-3xl"
             >
               <div className="p-5 sm:p-6">
