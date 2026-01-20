@@ -1,0 +1,14 @@
+export { default as Home } from './Home';
+export { default as Services } from './Services';
+export { default as About } from './About';
+export { default as Contact } from './Contact';
+export { default as Locations } from './Locations';
+export { default as Book } from './Book';
+export { default as Membership } from './Membership';
+export { default as FAQ } from './FAQ';
+export { default as Careers } from './Careers';
+export { default as GiftCards } from './GiftCards';
+export { default as Dashboard } from './Dashboard';
+export { default as Admin } from './Admin';
+export { default as Login } from './Login';
+export { default as Corporate } from './Corporate';

@@ -1,0 +1,165 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@theme {
+  --color-primary: #8B5A2B;
+  --color-primary-dark: #6B4423;
+  --color-primary-light: #A0522D;
+  --color-secondary: #F5E6D3;
+  --color-secondary-dark: #E8D4BC;
+  --color-accent: #D4A574;
+  --color-gold: #C9A961;
+  --color-background: #FDFBF8;
+  --color-background-alt: #F8F4EF;
+  --font-heading: 'Playfair Display', Georgia, serif;
+}
+
+/* Base styles */
+html {
+  scroll-behavior: auto;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+::selection {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Container */
+.container-custom {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+@media (min-width: 640px) {
+  .container-custom { padding: 0 24px; }
+}
+
+@media (min-width: 1024px) {
+  .container-custom { padding: 0 32px; }
+}
+
+/* Section padding - responsive */
+.section-padding {
+  padding: 48px 0;
+}
+
+@media (min-width: 768px) {
+  .section-padding { padding: 64px 0; }
+}
+
+@media (min-width: 1024px) {
+  .section-padding { padding: 80px 0; }
+}
+
+/* Font heading utility */
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+/* Scrollbar - minimal */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 3px;
+}
+
+/* Hide scrollbar for horizontal scroll areas */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Page loader */
+.page-loader {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile touch improvements */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Landscape mode fixes */
+@media (orientation: landscape) and (max-height: 500px) {
+  .min-h-\[80vh\], .min-h-\[85vh\], .min-h-\[90vh\] {
+    min-height: auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+}
+
+/* Safe area for notched phones */
+@supports (padding: max(0px)) {
+  .container-custom {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Image loading shimmer */
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Animate shimmer for skeleton loading */
+.animate-shimmer {
+  animation: shimmer 1.5s infinite linear;
+}
+
+/* Rounded inherit for nested elements */
+.rounded-inherit {
+  border-radius: inherit;
+}
