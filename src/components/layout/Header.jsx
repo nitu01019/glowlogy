@@ -109,10 +109,10 @@ export const Header = () => {
             </AnimatePresence>
           </motion.button>
 
-          {/* Logo - CENTER on mobile */}
-          <Link to="/" className="flex-shrink-0 lg:flex-shrink">
+          {/* Logo - CENTER on mobile, bigger text */}
+          <Link to="/" className="absolute left-1/2 transform -translate-x-1/2 lg:relative lg:left-0 lg:transform-none">
             <motion.span 
-              className="text-2xl sm:text-3xl font-heading font-bold text-primary"
+              className="text-2xl sm:text-3xl lg:text-3xl font-heading font-bold text-primary whitespace-nowrap"
               whileHover={{ scale: 1.02 }}
             >
               Glowlogy
