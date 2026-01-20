@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Phone, User, ChevronRight, LogOut, Calendar } from 'lucide-react';
 import { Button } from '../ui';
 import { useAuth } from '../../context/AuthContext';
@@ -30,7 +30,6 @@ export const Header = () => {
   const sidebarRef = useRef(null);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
-  const sidebarControls = useAnimation();
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -80,25 +79,14 @@ export const Header = () => {
 
   const handleSidebarTouchMove = (e) => {
     touchEndX.current = e.touches[0].clientX;
-    const swipeDistance = touchStartX.current - touchEndX.current;
-    
-    // Real-time drag feedback
-    if (swipeDistance > 0 && sidebarRef.current) {
-      const maxDrag = sidebarRef.current.offsetWidth;
-      const dragPercent = Math.min(swipeDistance / maxDrag, 1);
-      sidebarControls.set({ x: -swipeDistance, opacity: 1 - dragPercent * 0.3 });
-    }
   };
 
   const handleSidebarTouchEnd = () => {
     const swipeDistance = touchStartX.current - touchEndX.current;
     
-    // Swipe left to close
+    // Swipe left to close (swipe distance > 80px)
     if (swipeDistance > 80) {
       setIsMenuOpen(false);
-    } else {
-      // Snap back if not enough swipe
-      sidebarControls.start({ x: 0, opacity: 1, transition: { duration: 0.2 } });
     }
   };
 
@@ -341,14 +329,9 @@ export const Header = () => {
             <motion.div
               ref={sidebarRef}
               initial={{ x: '-100%' }}
-              animate={sidebarControls}
+              animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.25 }}
-              onAnimationStart={() => {
-                if (isMenuOpen) {
-                  sidebarControls.start({ x: 0, opacity: 1 });
-                }
-              }}
               onTouchStart={handleSidebarTouchStart}
               onTouchMove={handleSidebarTouchMove}
               onTouchEnd={handleSidebarTouchEnd}
