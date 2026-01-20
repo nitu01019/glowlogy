@@ -1,11 +1,12 @@
 /**
  * Header Component
  * Shows user profile when logged in
+ * With swipe gesture support for mobile sidebar
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useAnimation } from 'framer-motion';
 import { Menu, X, Phone, User, ChevronRight, LogOut, Calendar } from 'lucide-react';
 import { Button } from '../ui';
 import { useAuth } from '../../context/AuthContext';
@@ -24,6 +25,12 @@ export const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
   const { user, userData, isAuthenticated, logout } = useAuth();
+  
+  // Swipe gesture support
+  const sidebarRef = useRef(null);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const sidebarControls = useAnimation();
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -34,6 +41,66 @@ export const Header = () => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [isMenuOpen]);
+
+  // Handle swipe to open sidebar (from left edge of screen)
+  useEffect(() => {
+    const handleTouchStart = (e) => {
+      touchStartX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchMove = (e) => {
+      touchEndX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+      const swipeDistance = touchEndX.current - touchStartX.current;
+      const startedFromEdge = touchStartX.current < 30;
+      
+      // Swipe right from left edge to open
+      if (swipeDistance > 80 && startedFromEdge && !isMenuOpen) {
+        setIsMenuOpen(true);
+      }
+    };
+
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isMenuOpen]);
+
+  // Handle swipe to close sidebar
+  const handleSidebarTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleSidebarTouchMove = (e) => {
+    touchEndX.current = e.touches[0].clientX;
+    const swipeDistance = touchStartX.current - touchEndX.current;
+    
+    // Real-time drag feedback
+    if (swipeDistance > 0 && sidebarRef.current) {
+      const maxDrag = sidebarRef.current.offsetWidth;
+      const dragPercent = Math.min(swipeDistance / maxDrag, 1);
+      sidebarControls.set({ x: -swipeDistance, opacity: 1 - dragPercent * 0.3 });
+    }
+  };
+
+  const handleSidebarTouchEnd = () => {
+    const swipeDistance = touchStartX.current - touchEndX.current;
+    
+    // Swipe left to close
+    if (swipeDistance > 80) {
+      setIsMenuOpen(false);
+    } else {
+      // Snap back if not enough swipe
+      sidebarControls.start({ x: 0, opacity: 1, transition: { duration: 0.2 } });
+    }
+  };
 
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
@@ -272,11 +339,20 @@ export const Header = () => {
             />
             
             <motion.div
+              ref={sidebarRef}
               initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
+              animate={sidebarControls}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.25 }}
-              className="fixed top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white shadow-xl lg:hidden z-50 overflow-y-auto"
+              onAnimationStart={() => {
+                if (isMenuOpen) {
+                  sidebarControls.start({ x: 0, opacity: 1 });
+                }
+              }}
+              onTouchStart={handleSidebarTouchStart}
+              onTouchMove={handleSidebarTouchMove}
+              onTouchEnd={handleSidebarTouchEnd}
+              className="fixed top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl lg:hidden z-50 overflow-y-auto rounded-r-3xl"
             >
               <div className="p-5 sm:p-6">
                 <div className="flex items-center justify-between mb-6">
